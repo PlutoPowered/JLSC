@@ -96,7 +96,7 @@ public class JLSCQuery {
     }
 
     public JLSCQuery subQuery(int start, int end) {
-        return new JLSCQuery(this.path.subList(start, end));
+        return new JLSCQuery(Items.looseClone(this.path).subList(start, end));
     }
 
     public List<Object> getPath() {
