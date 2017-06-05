@@ -198,10 +198,10 @@ public class JLSCAnnotationProcessorGenerator {
             Object[] params = new Object[indices.length];
             for (int i = 0; i < indices.length; i++) {
                 int index = indices[i];
-                params[i] = a.get(i).orElse(JLSCValue.of(null)).getAsOrNull(types[i]);
+                params[i] = a.get(index).orElse(JLSCValue.of(null)).convert(types[i], null);
             }
             boolean access = finalChosen.isAccessible();
-            finalChosen.setAccessible(access);
+            finalChosen.setAccessible(true);
 
             try {
                 T val = finalChosen.newInstance(params);
@@ -212,7 +212,7 @@ public class JLSCAnnotationProcessorGenerator {
                     boolean faccess = field.isAccessible();
                     try {
                         field.setAccessible(true);
-                        field.set(val, a.get(key).orElse(JLSCValue.of(null)).getAsOrNull(field.getType()));
+                        field.set(val, a.get(key).orElse(JLSCValue.of(null)).convert(field.getType(), null));
                         field.setAccessible(faccess);
                     } catch (IllegalAccessException e) {
                         field.setAccessible(faccess);
@@ -220,14 +220,10 @@ public class JLSCAnnotationProcessorGenerator {
                     }
                 }
                 return val;
-            } catch (InvocationTargetException e) {
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
                 finalChosen.setAccessible(access);
                 throw new JLSCException("Error while instantiating object of class " + type.getName(), e);
-            } catch (InstantiationException | IllegalAccessException ignore) {
-
             }
-            finalChosen.setAccessible(access);
-            return null;
         };
     }
 

@@ -23,11 +23,11 @@ apply plugin : 'net.sf.gapt'
 //End Plugins
 
 //Program Specific Variables (Fill these in)
-def programVersion = "0.0.0"
+def programVersion = "0.0.13"
 def programGroup = "com.gmail.socraticphoenix"
 def programName = "JLSC"
 def repoName = "Main"
-def repoPackageName = "java-api"
+def repoPackageName = "java-api2"
 def programLicense = "MIT"
 def versionControlURL = "https://github.com/PlutoPowered/JLSC.git"
 //End Variables
@@ -55,8 +55,8 @@ repositories {
 }
 
 dependencies {
-    compile "com.gmail.socraticphoenix:PIO:0.0.0"
-    compile "com.gmail.socraticphoenix:Parse:0.0.1"
+    compile "com.gmail.socraticphoenix:PIO:0.0.1"
+    compile "com.gmail.socraticphoenix:Parse:0.0.4"
     compile "com.gmail.socraticphoenix:Mirror:0.0.0"
     compile "com.gmail.socraticphoenix:Collect:0.0.0"
     compile "com.gmail.socraticphoenix:InverseY:0.0.0"

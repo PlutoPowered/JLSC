@@ -54,13 +54,14 @@ public class JLSCTokenizer {
     }
 
     public boolean hasNext() {
+        this.stream.consumeAll(this.syntax.ignore());
         return this.stream.hasNext();
     }
 
     public JLSCValue arrayNext() throws JLSCException {
         i++;
         try {
-            return this.nextValue(false);
+            return this.nextValue(true);
         } catch (JLSCException e) {
             throw new JLSCException("Failed to read value at index " + i, e);
         }

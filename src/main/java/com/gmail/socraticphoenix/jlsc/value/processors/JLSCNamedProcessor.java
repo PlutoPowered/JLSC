@@ -63,7 +63,9 @@ public abstract class JLSCNamedProcessor<T> implements JLSCDualProcessor {
 
     @Override
     public JLSCValue readBytes(ByteStream buffer) throws JLSCException {
-        return null;
+        JLSCArray array = JLSCReadWriteUtil.readArray(buffer, LinkedHashMap::new, ArrayList::new);
+        T val = this.read(array);
+        return JLSCValue.of(val);
     }
 
     @Override

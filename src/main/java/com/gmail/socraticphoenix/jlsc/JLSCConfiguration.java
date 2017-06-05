@@ -102,7 +102,7 @@ public class JLSCConfiguration implements JLSCDataHolder, Iterable<JLSCKeyValue>
         return JLSCConfiguration.fromText(file, JLSCStyle.DEFAULT, JLSCSyntax.DEFAULT, concurrent);
     }
 
-    public JLSCConfiguration fromText(File file) throws IOException, JLSCException {
+    public static JLSCConfiguration fromText(File file) throws IOException, JLSCException {
         return JLSCConfiguration.fromText(file, true);
     }
 

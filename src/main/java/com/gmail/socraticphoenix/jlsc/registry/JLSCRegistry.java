@@ -37,6 +37,7 @@ import com.gmail.socraticphoenix.jlsc.value.annotation.JLSCAnnotationProcessorPr
 import com.gmail.socraticphoenix.jlsc.value.annotation.JLSCAnnotationProcessorPreParse;
 import com.gmail.socraticphoenix.jlsc.value.annotation.JLSCAnnotationProcessorPreProcess;
 import com.gmail.socraticphoenix.jlsc.value.processors.JLSCEnumProcessor;
+import com.gmail.socraticphoenix.jlsc.value.processors.JLSCFileProcecssor;
 import com.gmail.socraticphoenix.jlsc.value.processors.JLSCNullProcessor;
 import com.gmail.socraticphoenix.jlsc.value.processors.JLSCPrimitiveProcessors;
 import com.gmail.socraticphoenix.jlsc.value.processors.JLSCSimpleArrayProcessor;
@@ -109,6 +110,7 @@ public class JLSCRegistry {
 
         register(new JLSCUUIDProcessor());
         register(new JLSCEnumProcessor());
+        register(new JLSCFileProcecssor());
 
         JLSCRegistry.validate();
     }

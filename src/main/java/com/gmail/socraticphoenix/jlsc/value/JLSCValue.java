@@ -197,9 +197,12 @@ public class JLSCValue extends CastableValue {
                 try {
                     if (serializer.verifier().isValid(this)) {
                         result = serializer.deSerialize(this);
-                        this.serializedCache.put(type, result);
                         result.absorbMetadata(this);
-                        return result.getAs(type);
+                        Optional<T> val = result.getAs(type);
+                        if(val.isPresent()) {
+                            this.serializedCache.put(type, val.get());
+                        }
+                        return val;
                     } else if (this.backing != null) {
                         return this.backing.deserialize(type);
                     }

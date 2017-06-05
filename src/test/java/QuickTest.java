@@ -19,30 +19,27 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.gmail.socraticphoenix.jlsc.value.annotation;
 
-import com.gmail.socraticphoenix.jlsc.registry.JLSCPreParse;
-import com.gmail.socraticphoenix.jlsc.registry.JLSCRegistry;
-import com.gmail.socraticphoenix.mirror.Reflections;
+import com.gmail.socraticphoenix.jlsc.JLSCArray;
+import com.gmail.socraticphoenix.jlsc.JLSCCompound;
+import com.gmail.socraticphoenix.jlsc.JLSCException;
+import com.gmail.socraticphoenix.jlsc.JLSCFormat;
+import com.gmail.socraticphoenix.jlsc.io.JLSCReadWriteUtil;
+import com.gmail.socraticphoenix.pio.ByteStream;
 
-import java.util.Optional;
-import java.util.regex.Pattern;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
-public class JLSCAnnotationProcessorPreParse implements JLSCPreParse {
+public class QuickTest {
 
-    @Override
-    public boolean affects(String val) {
-        Optional<Class> classOptional = this.isolate(val);
-        return classOptional.isPresent() && classOptional.get().isAnnotationPresent(Convertible.class);
-    }
-
-    @Override
-    public void apply(String val) {
-        JLSCRegistry.register(JLSCAnnotationProcessorGenerator.generate(this.isolate(val).get()));
-    }
-
-    private Optional<Class> isolate(String val) {
-        return Reflections.resolveClass(val.trim().split(Pattern.quote("("), 2)[0].trim());
+    public static void main(String[] args) throws IOException, JLSCException {
+        JLSCArray arr = JLSCArray.of("meh", JLSCFormat.TEXT, JLSCArray.of(3, 12, JLSCArray.of("one", "two", JLSCArray.of(true, false, true))));
+        JLSCCompound compound = new JLSCCompound();
+        compound.put("compound", arr);
+        System.out.println(compound.write());
+        System.out.println("-----------------------");
+        System.out.println(JLSCReadWriteUtil.readCompound(ByteStream.of(compound.writeBytes()), LinkedHashMap::new, ArrayList::new).write());
     }
 
 }

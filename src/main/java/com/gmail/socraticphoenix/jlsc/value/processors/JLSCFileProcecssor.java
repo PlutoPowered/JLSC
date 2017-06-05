@@ -19,30 +19,27 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.gmail.socraticphoenix.jlsc.value.annotation;
+package com.gmail.socraticphoenix.jlsc.value.processors;
 
-import com.gmail.socraticphoenix.jlsc.registry.JLSCPreParse;
-import com.gmail.socraticphoenix.jlsc.registry.JLSCRegistry;
-import com.gmail.socraticphoenix.mirror.Reflections;
+import com.gmail.socraticphoenix.jlsc.JLSCArray;
+import com.gmail.socraticphoenix.jlsc.JLSCException;
 
-import java.util.Optional;
-import java.util.regex.Pattern;
+import java.io.File;
 
-public class JLSCAnnotationProcessorPreParse implements JLSCPreParse {
+public class JLSCFileProcecssor extends JLSCNamedProcessor<File> {
 
-    @Override
-    public boolean affects(String val) {
-        Optional<Class> classOptional = this.isolate(val);
-        return classOptional.isPresent() && classOptional.get().isAnnotationPresent(Convertible.class);
+    public JLSCFileProcecssor() {
+        super(File.class, "file", true);
     }
 
     @Override
-    public void apply(String val) {
-        JLSCRegistry.register(JLSCAnnotationProcessorGenerator.generate(this.isolate(val).get()));
+    protected void write(File value, JLSCArray trg) throws JLSCException {
+        trg.add(value.getAbsolutePath());
     }
 
-    private Optional<Class> isolate(String val) {
-        return Reflections.resolveClass(val.trim().split(Pattern.quote("("), 2)[0].trim());
+    @Override
+    protected File read(JLSCArray src) throws JLSCException {
+        return new File(src.getString(0).get());
     }
 
 }

@@ -74,6 +74,20 @@ public class JLSCReadWriteUtil {
         return array;
     }
 
+    public static boolean requiresQuotation(String key, String eKey, JLSCSyntax syntax) {
+        if(!key.equals(eKey)) {
+            return true;
+        }
+
+        for(char c : key.toCharArray()) {
+            if(syntax.keyValueDelimiter().test(c) || syntax.nonConsumableDelimiter().test(c)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static String writeCompound(JLSCCompound compound, JLSCSyntax syntax, JLSCStyle style, int indent) throws JLSCException {
         StringBuilder builder = new StringBuilder();
         Iterator<JLSCKeyValue> iterator = compound.iterator();
@@ -84,7 +98,7 @@ public class JLSCReadWriteUtil {
             }
             builder.append(style.preKey(indent));
             String eKey = Strings.escape(keyValue.getKey());
-            builder.append(eKey.equals(keyValue.getKey()) ? keyValue.getKey() : "\"" + eKey + "\"");
+            builder.append(!JLSCReadWriteUtil.requiresQuotation(keyValue.getKey(), eKey, syntax) ? keyValue.getKey() : "\"" + eKey + "\"");
             builder.append(style.delimiter(indent));
 
             List<JLSCValueProperty> properties = Items.looseClone(keyValue.getProperties());

@@ -117,7 +117,7 @@ public class JLSCQuery {
 
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("[");
+        builder.append("JLSCQuery[");
         for (int i = 0; i < this.path.size(); i++) {
             Switch<String, Integer> val = this.path.get(i);
             if(val.containsA()) {

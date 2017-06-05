@@ -42,6 +42,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -123,6 +124,7 @@ public class JLSCAnnotationSerializerGenerator {
                     throw new IllegalStateException("Unreachable code", e);
                 }
             });
+            builder.require(name, JLSCVerifiers.nullOrConvertible(m.getReturnType()));
         });
 
 
@@ -153,13 +155,15 @@ public class JLSCAnnotationSerializerGenerator {
         }
 
         List<Pair<String, Field>> reflective = Stream.of(type.getDeclaredFields()).filter(f -> f.isAnnotationPresent(Serialize.class) && !Modifier.isStatic(f.getModifiers()) && f.getAnnotation(Serialize.class).reflect()).map(f -> Pair.of(f.getAnnotation(Serialize.class).value(), f)).collect(Collectors.toList());
-
         Constructor<T> finalChosen = chosen;
         return j -> {
             Object[] params = new Object[names.length];
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];
-                params[i] = j.get(name).orElse(JLSCValue.of(null)).getAsOrNull(types[i]);
+                Optional<JLSCValue> value = j.get(name);
+                if(value.isPresent()) {
+                    params[i] = value.get().convert(types[i], null);
+                }
             }
 
             boolean access = finalChosen.isAccessible();
@@ -173,7 +177,10 @@ public class JLSCAnnotationSerializerGenerator {
                     boolean faccess = field.isAccessible();
                     try {
                         field.setAccessible(true);
-                        field.set(val, j.get(key).orElse(JLSCValue.of(null)).getAsOrNull(field.getType()));
+                        Optional<JLSCValue> value = j.get(key);
+                        if(value.isPresent()) {
+                            field.set(val, value.get().convert(field.getType(), null));
+                        }
                         field.setAccessible(faccess);
                     } catch (IllegalAccessException e) {
                         field.setAccessible(faccess);
