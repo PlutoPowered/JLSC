@@ -11,7 +11,7 @@ apply plugin : 'idea'
 
 //Program Specific Variables
 def programVersion = "0.0.13"
-def programGroup = "JLSC"
+def programGroup = "com.gmail.socraticphoenix"
 //End Variables
 
 //Gradle Variables
@@ -37,7 +37,6 @@ repositories {
 }
 
 dependencies {
-    library "com.github.PlutoPowered:Occurence:master-SNAPSHOT"
     library "com.github.PlutoPowered:PIO:master-SNAPSHOT"
     library "com.github.PlutoPowered:Parse:master-SNAPSHOT"
     library "com.github.PlutoPowered:Collect:master-SNAPSHOT"
