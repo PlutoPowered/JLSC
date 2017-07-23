@@ -29,6 +29,8 @@ public interface JLSCStyle {
 
     JLSCStyle CODE = new Code();
 
+    JLSCStyle JSON = new Json();
+
     String delimiter(int indent);
 
     String compoundValueDelimiter(int indent);
@@ -64,6 +66,8 @@ public interface JLSCStyle {
     boolean doLastCompoundValue();
 
     boolean doLastArrayValue();
+
+    boolean alwaysUseKeyQuotes();
 
     class Default implements JLSCStyle {
 
@@ -154,6 +158,11 @@ public interface JLSCStyle {
 
         @Override
         public boolean doLastArrayValue() {
+            return false;
+        }
+
+        @Override
+        public boolean alwaysUseKeyQuotes() {
             return false;
         }
 
@@ -249,6 +258,110 @@ public interface JLSCStyle {
         @Override
         public boolean doLastArrayValue() {
             return false;
+        }
+
+        @Override
+        public boolean alwaysUseKeyQuotes() {
+            return false;
+        }
+
+    }
+
+    class Json implements JLSCStyle {
+
+        @Override
+        public String delimiter(int indent) {
+            return ":";
+        }
+
+        @Override
+        public String compoundValueDelimiter(int indent) {
+            return ", ";
+        }
+
+        @Override
+        public String arrayValueDelimiter(int indent) {
+            return ", ";
+        }
+
+        @Override
+        public String beginArray(int indent) {
+            return "[";
+        }
+
+        @Override
+        public String endArray(int indent) {
+            return "]";
+        }
+
+        @Override
+        public String beginCompound(int indent) {
+            return "{";
+        }
+
+        @Override
+        public String endCompound(int indent) {
+            return "}";
+        }
+
+        @Override
+        public String beginComment(int indent) {
+            return "#";
+        }
+
+        @Override
+        public String endComment(int indent) {
+            return "#";
+        }
+
+        @Override
+        public String beginProperty(int indent) {
+            return "@";
+        }
+
+        @Override
+        public String beginPropertyArgs(int indent) {
+            return "(";
+        }
+
+        @Override
+        public String propertyArgsDelimiter(int indent) {
+            return ", ";
+        }
+
+        @Override
+        public String endPropertyArgs(int indent) {
+            return ")";
+        }
+
+        @Override
+        public String endProperty(int indent) {
+            return ":";
+        }
+
+        @Override
+        public String preArrayVal(int indent) {
+            return "";
+        }
+
+        @Override
+        public String preKey(int indent) {
+            return "";
+        }
+
+        @Override
+        public boolean doLastCompoundValue() {
+            return false;
+        }
+
+        @Override
+        public boolean doLastArrayValue() {
+            return false;
+        }
+
+        @Override
+        public boolean alwaysUseKeyQuotes() {
+            return true;
         }
 
     }

@@ -150,9 +150,11 @@ public class JLSCTokenizer {
     }
 
     private String nextComment() {
-        this.stream.consumeAll(this.syntax.commentBegin().or(this.syntax.ignore()));
+        this.stream.consumeAll(this.syntax.ignore());
+        this.stream.consume(this.syntax.commentBegin());
         String comment = this.stream.nextUntil(this.syntax.commentEnd());
-        this.stream.consumeAll(this.syntax.commentEnd().or(this.syntax.ignore()));
+        this.stream.consume(this.syntax.commentEnd());
+        this.stream.consumeAll(this.syntax.ignore());
         return comment;
     }
 

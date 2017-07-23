@@ -325,5 +325,4 @@ public class JLSCVerifiers {
         return JLSCVerifiers.or(JLSCVerifiers.type(type), JLSCVerifiers.deserializable(type));
     }
 
-
 }

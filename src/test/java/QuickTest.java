@@ -25,21 +25,25 @@ import com.gmail.socraticphoenix.jlsc.JLSCCompound;
 import com.gmail.socraticphoenix.jlsc.JLSCException;
 import com.gmail.socraticphoenix.jlsc.JLSCFormat;
 import com.gmail.socraticphoenix.jlsc.io.JLSCReadWriteUtil;
+import com.gmail.socraticphoenix.jlsc.io.JLSCStyle;
+import com.gmail.socraticphoenix.jlsc.io.JLSCSyntax;
+import com.gmail.socraticphoenix.jlsc.registry.JLSCRegistry;
+import com.gmail.socraticphoenix.jlsc.serialization.annotation.Name;
+import com.gmail.socraticphoenix.jlsc.serialization.annotation.Serializable;
+import com.gmail.socraticphoenix.jlsc.serialization.annotation.SerializationConstructor;
+import com.gmail.socraticphoenix.jlsc.serialization.annotation.Serialize;
+import com.gmail.socraticphoenix.jlsc.value.JLSCValue;
 import com.gmail.socraticphoenix.pio.ByteStream;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 public class QuickTest {
 
     public static void main(String[] args) throws IOException, JLSCException {
-        JLSCArray arr = JLSCArray.of("meh", JLSCFormat.TEXT, JLSCArray.of(3, 12, JLSCArray.of("one", "two", JLSCArray.of(true, false, true))));
-        JLSCCompound compound = new JLSCCompound();
-        compound.put("compound", arr);
-        System.out.println(compound.write());
-        System.out.println("-----------------------");
-        System.out.println(JLSCReadWriteUtil.readCompound(ByteStream.of(compound.writeBytes()), LinkedHashMap::new, ArrayList::new).write());
     }
 
 }

@@ -27,6 +27,10 @@ import java.util.function.Predicate;
 
 public interface JLSCSyntax {
 
+    /**
+     * The DEFAULT JLSCSyntax, it can accept any standard JLSCStyle (DEFAULT, CODE, JSON), as well as any valid JSON
+     * file.
+     */
     JLSCSyntax DEFAULT = new Default();
 
     Predicate<Character> compoundValueEnd();

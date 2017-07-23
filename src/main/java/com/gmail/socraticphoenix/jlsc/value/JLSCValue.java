@@ -87,28 +87,6 @@ public class JLSCValue extends CastableValue {
         }
     }
 
-    private JLSCValue(Object value, List<JLSCValueProperty> properties, JLSCValueProperty typeSpecifier, JLSCValue backing) {
-        super(value);
-        this.properties = properties;
-        this.typeSpecifier = typeSpecifier;
-        this.backing = backing;
-    }
-
-    public JLSCValue(Object value, List<JLSCValueProperty> properties, JLSCValueProperty typeSpecifier) {
-        super(value);
-        this.properties = properties;
-        this.typeSpecifier = typeSpecifier;
-        this.backing = this.makeBacking();
-    }
-
-    public static JLSCValue serialized(Object value, List<JLSCValueProperty> properties, JLSCValueProperty typeSpecifier, JLSCValue backing) {
-        return new JLSCValue(value, properties, typeSpecifier, backing);
-    }
-
-    public static JLSCValue parsed(Object value, List<JLSCValueProperty> properties, JLSCValueProperty typeSpecifier) {
-        return new JLSCValue(value, properties, typeSpecifier);
-    }
-
     public static JLSCValue of(Object value) {
         return new JLSCValue(value);
     }
@@ -116,7 +94,6 @@ public class JLSCValue extends CastableValue {
     public void absorbMetadata(JLSCValue other) {
         this.properties.clear();
         this.properties.addAll(other.properties);
-        this.typeSpecifier = other.typeSpecifier;
 
         if (this.getAsCompound().isPresent() && other.getAsCompound().isPresent()) {
             this.getAsCompound().get().absorbMetadata(other.getAsCompound().get());
@@ -227,19 +204,11 @@ public class JLSCValue extends CastableValue {
         return this.getAs(JLSCCompound.class);
     }
 
-    public Optional<JLSCValue> getFarthestBacking() {
+    public JLSCValue getFarthestBacking() {
         if (this.backing == null) {
-            return Optional.empty();
+            return this;
         } else {
-            return this.backing.getFarthestBackingRecursive();
-        }
-    }
-
-    private Optional<JLSCValue> getFarthestBackingRecursive() {
-        if (this.backing == null) {
-            return Optional.of(this);
-        } else {
-            return this.backing.getFarthestBackingRecursive();
+            return this.backing.getFarthestBacking();
         }
     }
 

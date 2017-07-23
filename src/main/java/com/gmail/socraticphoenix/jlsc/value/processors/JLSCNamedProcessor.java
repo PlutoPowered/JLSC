@@ -227,6 +227,11 @@ public abstract class JLSCNamedProcessor<T> implements JLSCDualProcessor {
             return false;
         }
 
+        @Override
+        public boolean alwaysUseKeyQuotes() {
+            return false;
+        }
+
     }
 
 }

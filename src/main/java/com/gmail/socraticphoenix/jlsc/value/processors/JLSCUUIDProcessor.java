@@ -43,7 +43,7 @@ public class JLSCUUIDProcessor extends JLSCNamedProcessor<UUID> {
         try {
             return UUID.fromString(src.get(0).get().getAsString().get());
         } catch (IllegalArgumentException | NoSuchElementException e) {
-            throw new JLSCException("UUID object invalid");
+            throw new JLSCException("UUID object invalid", e);
         }
     }
 
