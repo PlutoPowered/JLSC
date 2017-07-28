@@ -266,13 +266,13 @@ public class JLSCRegistry {
     }
 
     public static <T> Optional<JLSCSerializer<T>> getSerializerFor(Class<T> type, JLSCValue value) {
-        Optional<JLSCSerializer<T>> serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> e.getKey().isAssignableFrom(type) && e.getValue().verifier().isValid(value)).map(Map.Entry::getValue).findFirst();
+        Optional<JLSCSerializer<T>> serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> type.isAssignableFrom(e.getKey()) && e.getValue().verifier().isValid(value)).map(Map.Entry::getValue).findFirst();
         if (!serializerOptional.isPresent()) {
             Optional<JLSCPreSerialize> preSerializeOptional = JLSCRegistry.preSerializes.stream().filter(p -> p.affects(type)).findFirst();
             if (preSerializeOptional.isPresent()) {
                 JLSCPreSerialize preSerialize = preSerializeOptional.get();
                 preSerialize.apply(type);
-                serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> e.getKey().isAssignableFrom(type) && e.getValue().verifier().isValid(value)).map(Map.Entry::getValue).findFirst();
+                serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> type.isAssignableFrom(e.getKey()) && e.getValue().verifier().isValid(value)).map(Map.Entry::getValue).findFirst();
             }
         }
         return serializerOptional;
