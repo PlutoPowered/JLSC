@@ -109,7 +109,7 @@ public class JLSCValue extends CastableValue {
 
     public JLSCValue getObjectified() {
         Optional<JLSCSerializer> serializerOptional = JLSCRegistry.getSerializerFor(this);
-        if(serializerOptional.isPresent()) {
+        if (serializerOptional.isPresent()) {
             JLSCSerializer serializer = serializerOptional.get();
             JLSCValue result = null;
             try {
@@ -125,17 +125,13 @@ public class JLSCValue extends CastableValue {
     }
 
     public <T> Optional<T> deserialize(Class<T> type) {
-        Optional<JLSCSerializer<T>> serializerOptional = JLSCRegistry.getSerializer(type);
+        Optional<JLSCSerializer<T>> serializerOptional = JLSCRegistry.getSerializerFor(type, this);
         if (serializerOptional.isPresent()) {
             JLSCSerializer<T> serializer = serializerOptional.get();
-            JLSCValue result;
             try {
-                if (serializer.verifier().isValid(this)) {
-                    result = serializer.deSerialize(this);
-                    result.absorbMetadata(this);
-                    Optional<T> val = result.getAs(type);
-                    return val;
-                }
+                JLSCValue result = serializer.deSerialize(this);
+                result.absorbMetadata(this);
+                return result.getAs(type);
             } catch (JLSCException e) {
                 return Optional.empty();
             }
