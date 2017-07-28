@@ -89,6 +89,16 @@ public class JLSCValue extends CastableValue {
         return this.convert(type);
     }
 
+    @Override
+    public <T> T getAs(Class<T> type, T def) {
+        return this.getAs(type).orElse(def);
+    }
+
+    @Override
+    public <T> T getAsOrNull(Class<T> type) {
+        return this.getAs(type).orElse(null);
+    }
+
     public JLSCValue getForWriting() {
         Optional<JLSCValue> serialized = this.serialize();
         return serialized.orElse(this);
