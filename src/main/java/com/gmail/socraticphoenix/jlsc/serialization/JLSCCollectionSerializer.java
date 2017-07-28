@@ -25,6 +25,7 @@ import com.gmail.socraticphoenix.jlsc.JLSCArray;
 import com.gmail.socraticphoenix.jlsc.JLSCCompound;
 import com.gmail.socraticphoenix.jlsc.JLSCException;
 import com.gmail.socraticphoenix.jlsc.skeleton.JLSCVerifier;
+import com.gmail.socraticphoenix.jlsc.skeleton.JLSCVerifiers;
 import com.gmail.socraticphoenix.jlsc.value.JLSCValue;
 
 import java.util.Collection;
@@ -44,6 +45,14 @@ public class JLSCCollectionSerializer implements JLSCSerializer<Collection> {
         this.type = type;
         this.strict = strict;
         this.listId = listId;
+
+        this.verifier = JLSCVerifiers.and(
+                JLSCVerifiers.type(JLSCCompound.class),
+                JLSCVerifiers.skeleton()
+                        .require("listId", JLSCVerifiers.is(listId))
+                        .require("list", JLSCVerifiers.type(JLSCArray.class))
+                .build()
+        );
     }
 
     @Override
