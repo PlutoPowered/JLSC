@@ -66,9 +66,3 @@ shadowJar {
     classifier = "shadow"
 }
 //End Tasks
-
-//Configurations
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-//End configurations

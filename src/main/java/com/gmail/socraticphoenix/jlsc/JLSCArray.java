@@ -82,22 +82,22 @@ public class JLSCArray implements JLSCDataHolder, Iterable<JLSCValue> {
 
     public <T> Optional<T> getAs(JLSCQuery query, Class<T> type) {
         Optional<JLSCValue> value = this.get(query);
-        return value.isPresent() ? value.get().convert(type) : Optional.empty();
+        return value.isPresent() ? value.get().getAs(type) : Optional.empty();
     }
 
     public <T> T getAs(JLSCQuery query, Class<T> type, T def) {
         Optional<JLSCValue> value = this.get(query);
-        return value.isPresent() ? value.get().convert(type, def) : def;
+        return value.isPresent() ? value.get().getAs(type, def) : def;
     }
 
     public <T> Optional<T> getAs(int index, Class<T> type) {
         Optional<JLSCValue> value = this.get(index);
-        return value.isPresent() ? value.get().convert(type) : Optional.empty();
+        return value.isPresent() ? value.get().getAs(type) : Optional.empty();
     }
 
     public <T> T getAs(int index, Class<T> type, T def) {
         Optional<JLSCValue> value = this.get(index);
-        return value.isPresent() ? value.get().convert(type, def) : def;
+        return value.isPresent() ? value.get().getAs(type, def) : def;
     }
 
     public <T> T getAsOrNull(int index, Class<T> type) {

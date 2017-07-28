@@ -37,6 +37,7 @@ public class JLSCValueHeader {
     private List<JLSCValueProperty> properties;
 
     public JLSCValueHeader(JLSCValue src) {
+        src = src.getForWriting();
         this.typeSpecifier = src.getTypeSpecifier();
         this.properties = Items.looseClone(src.getProperties());
     }

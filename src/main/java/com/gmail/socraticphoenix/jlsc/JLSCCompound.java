@@ -261,22 +261,22 @@ public class JLSCCompound implements JLSCDataHolder, Iterable<JLSCKeyValue> {
 
     public <T> Optional<T> getAs(JLSCQuery query, Class<T> type) {
         Optional<JLSCValue> value = this.get(query);
-        return value.isPresent() ? value.get().convert(type) : Optional.empty();
+        return value.isPresent() ? value.get().getAs(type) : Optional.empty();
     }
 
     public <T> T getAs(JLSCQuery query, Class<T> type, T def) {
         Optional<JLSCValue> value = this.get(query);
-        return value.isPresent() ? value.get().convert(type, def) : def;
+        return value.isPresent() ? value.get().getAs(type, def) : def;
     }
 
     public <T> Optional<T> getAs(String key, Class<T> type) {
         Optional<JLSCValue> value = this.get(key);
-        return value.isPresent() ? value.get().convert(type) : Optional.empty();
+        return value.isPresent() ? value.get().getAs(type) : Optional.empty();
     }
 
     public <T> T getAs(String key, Class<T> type, T def) {
         Optional<JLSCValue> value = this.get(key);
-        return value.isPresent() ? value.get().convert(type, def) : def;
+        return value.isPresent() ? value.get().getAs(type, def) : def;
     }
 
     public <T> T getAsOrNull(String key, Class<T> type) {

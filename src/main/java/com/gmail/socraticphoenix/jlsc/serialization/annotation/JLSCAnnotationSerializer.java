@@ -43,7 +43,7 @@ public class JLSCAnnotationSerializer<T> extends JLSCCompoundSerializer<T> {
 
     @Override
     protected void write(JLSCValue val, JLSCCompound trg) throws JLSCException {
-        T value = val.convert(this.result()).get();
+        T value = val.getAs(this.result()).get();
         for(DangerousConsumer2<T, JLSCCompound, JLSCException> consumer : this.write) {
             consumer.call(value, trg);
         }

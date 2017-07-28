@@ -40,14 +40,9 @@ public class JLSCValue extends CastableValue {
     private List<JLSCValueProperty> properties;
     private JLSCValueProperty typeSpecifier;
 
-    private Map<Class, Object> serializedCache;
-    private JLSCValue backing;
-
     public JLSCValue(Object value) {
         super(value);
         this.properties = new ArrayList<>();
-        this.serializedCache = new HashMap<>();
-        this.backing = this.makeBacking();
         Optional<JLSCProcessor> processor = JLSCRegistry.getProcessorFor(this);
         Optional<JLSCByteProcessor> byteProcessor = JLSCRegistry.getByteProcessorFor(this);
         if (processor.isPresent()) {
@@ -58,32 +53,8 @@ public class JLSCValue extends CastableValue {
             this.typeSpecifier = new JLSCValueProperty("compound");
         } else if (value instanceof JLSCArray) {
             this.typeSpecifier = new JLSCValueProperty("array");
-        } else if (this.backing != null) {
-            this.typeSpecifier = this.backing.getTypeSpecifier();
         } else {
-            throw new IllegalArgumentException("No applicable processor, byte or string, for object of type: " + value.getClass().toString());
-        }
-    }
-
-    public JLSCValue(Object value, JLSCValue backing) {
-        super(value);
-        this.properties = new ArrayList<>();
-        this.serializedCache = new HashMap<>();
-        this.backing = backing;
-        Optional<JLSCProcessor> processor = JLSCRegistry.getProcessorFor(this);
-        Optional<JLSCByteProcessor> byteProcessor = JLSCRegistry.getByteProcessorFor(this);
-        if (processor.isPresent()) {
-            this.typeSpecifier = new JLSCValueProperty(processor.get().id());
-        } else if (byteProcessor.isPresent()) {
-            this.typeSpecifier = new JLSCValueProperty(byteProcessor.get().id());
-        } else if (value instanceof JLSCCompound) {
-            this.typeSpecifier = new JLSCValueProperty("compound");
-        } else if (value instanceof JLSCArray) {
-            this.typeSpecifier = new JLSCValueProperty("array");
-        } else if (this.backing != null) {
-            this.typeSpecifier = this.backing.getTypeSpecifier();
-        } else {
-            throw new IllegalArgumentException("No applicable processor, byte or string, for object of type: " + value.getClass().toString());
+            this.typeSpecifier = new JLSCValueProperty("deSerializedObject");
         }
     }
 
@@ -102,90 +73,71 @@ public class JLSCValue extends CastableValue {
         }
     }
 
-    private JLSCValue makeBacking() {
-        if (!JLSCRegistry.getProcessorFor(this).isPresent() && !JLSCRegistry.getByteProcessorFor(this).isPresent()) {
-            Optional<JLSCSerializer> serializerOptional = JLSCRegistry.getSerializerFor(this.rawValue());
-            if (serializerOptional.isPresent()) {
-                try {
-                    return serializerOptional.get().serialize(this);
-                } catch (JLSCException e) {
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
 
-    public <T> Optional<T> convert(Class<T> type) {
-        Optional<T> casted = this.getAs(type);
+    private <T> Optional<T> convert(Class<T> type) {
+        Optional<T> casted = super.getAs(type);
         if (casted.isPresent()) {
             return casted;
         }
 
-        Optional<T> serialized = this.deserialize(type);
-        if (serialized.isPresent()) {
-            return serialized;
-        }
+        return this.deserialize(type);
 
-        return Optional.empty();
-    }
-
-    public <T> T convert(Class<T> type, T def) {
-        Optional<T> casted = this.getAs(type);
-        if (casted.isPresent()) {
-            return casted.get();
-        }
-
-        Optional<T> serialized = this.deserialize(type);
-        if (serialized.isPresent()) {
-            return serialized.get();
-        }
-
-        return def;
     }
 
     @Override
     public <T> Optional<T> getAs(Class<T> type) {
-        Optional<T> val = super.getAs(type);
-        return val.isPresent() || this.backing == null ? val : this.backing.getAs(type);
+        return this.convert(type);
     }
 
-    public <T> Optional<JLSCValue> serialize(Class<T> type) {
-        Optional<T> tOptional = this.deserialize(type);
-        if (tOptional.isPresent()) {
-            JLSCValue value = new JLSCValue(tOptional.get());
-            value.absorbMetadata(this);
-            value.backing = this;
-            return Optional.of(value);
+    public JLSCValue getForWriting() {
+        Optional<JLSCValue> serialized = this.serialize();
+        return serialized.orElse(this);
+    }
+
+    public Optional<JLSCValue> serialize() {
+        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.getSerializerFor(this.value);
+        if (serializerOptional.isPresent()) {
+            try {
+                return Optional.ofNullable(serializerOptional.get().serialize(this));
+            } catch (JLSCException e) {
+                return Optional.empty();
+            }
         } else {
             return Optional.empty();
         }
     }
 
+    public JLSCValue getObjectified() {
+        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.getSerializerFor(this);
+        if(serializerOptional.isPresent()) {
+            JLSCSerializer serializer = serializerOptional.get();
+            JLSCValue result = null;
+            try {
+                result = serializer.deSerialize(this);
+            } catch (JLSCException e) {
+                return this;
+            }
+            result.absorbMetadata(this);
+            return result;
+        }
+
+        return this;
+    }
+
     public <T> Optional<T> deserialize(Class<T> type) {
-        Object object = this.serializedCache.get(type);
-        if (object != null) {
-            return Optional.of((T) object);
-        } else {
-            Optional<JLSCSerializer<T>> serializerOptional = JLSCRegistry.getSerializer(type);
-            if (serializerOptional.isPresent()) {
-                JLSCSerializer<T> serializer = serializerOptional.get();
-                JLSCValue result;
-                try {
-                    if (serializer.verifier().isValid(this)) {
-                        result = serializer.deSerialize(this);
-                        result.absorbMetadata(this);
-                        Optional<T> val = result.getAs(type);
-                        if(val.isPresent()) {
-                            this.serializedCache.put(type, val.get());
-                        }
-                        return val;
-                    } else if (this.backing != null) {
-                        return this.backing.deserialize(type);
-                    }
-                } catch (JLSCException e) {
-                    return Optional.empty();
+        Optional<JLSCSerializer<T>> serializerOptional = JLSCRegistry.getSerializer(type);
+        if (serializerOptional.isPresent()) {
+            JLSCSerializer<T> serializer = serializerOptional.get();
+            JLSCValue result;
+            try {
+                if (serializer.verifier().isValid(this)) {
+                    result = serializer.deSerialize(this);
+                    result.absorbMetadata(this);
+                    Optional<T> val = result.getAs(type);
+                    return val;
                 }
+            } catch (JLSCException e) {
+                return Optional.empty();
             }
         }
 
@@ -204,18 +156,6 @@ public class JLSCValue extends CastableValue {
         return this.getAs(JLSCCompound.class);
     }
 
-    public JLSCValue getFarthestBacking() {
-        if (this.backing == null) {
-            return this;
-        } else {
-            return this.backing.getFarthestBacking();
-        }
-    }
-
-    public Optional<JLSCValue> getBacking() {
-        return Optional.ofNullable(this.backing);
-    }
-
     public List<JLSCValueProperty> getProperties() {
         return this.properties;
     }
@@ -228,4 +168,7 @@ public class JLSCValue extends CastableValue {
         this.typeSpecifier = typeSpecifier;
     }
 
+    public <T> Optional<T> superCast(Class<T> type) {
+        return super.getAs(type);
+    }
 }

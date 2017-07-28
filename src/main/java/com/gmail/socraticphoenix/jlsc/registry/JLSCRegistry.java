@@ -146,7 +146,7 @@ public class JLSCRegistry {
     }
 
     public static boolean containsSerializer(Class clazz) {
-        return JLSCRegistry.serializers.containsKey(clazz);
+        return JLSCRegistry.serializers.entrySet().stream().anyMatch(e -> e.getKey().isAssignableFrom(clazz));
     }
 
     public static boolean containsProcessor(String id) {
@@ -158,11 +158,11 @@ public class JLSCRegistry {
     }
 
     public static boolean containsProcessorFor(Class clazz) {
-        return JLSCRegistry.processors.values().stream().filter(p -> p.canWrite(clazz)).findFirst().isPresent();
+        return JLSCRegistry.processors.values().stream().anyMatch(p -> p.canWrite(clazz));
     }
 
     public static boolean containsByteProcessorFor(Class clazz) {
-        return JLSCRegistry.byteProcessors.values().stream().filter(p -> p.canWriteBytes(clazz)).findFirst().isPresent();
+        return JLSCRegistry.byteProcessors.values().stream().anyMatch(p -> p.canWriteBytes(clazz));
     }
 
     public static void validate() throws IllegalStateException {
@@ -266,13 +266,13 @@ public class JLSCRegistry {
     }
 
     public static <T> Optional<JLSCSerializer<T>> getSerializer(Class<T> type) {
-        Optional<JLSCSerializer<T>> serializerOptional = Optional.ofNullable(JLSCRegistry.serializers.get(type));
+        Optional<JLSCSerializer<T>> serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> e.getKey().isAssignableFrom(type)).map(Map.Entry::getValue).findFirst();
         if (!serializerOptional.isPresent()) {
             Optional<JLSCPreSerialize> preSerializeOptional = JLSCRegistry.preSerializes.stream().filter(p -> p.affects(type)).findFirst();
             if (preSerializeOptional.isPresent()) {
                 JLSCPreSerialize preSerialize = preSerializeOptional.get();
                 preSerialize.apply(type);
-                serializerOptional = Optional.ofNullable(JLSCRegistry.serializers.get(type));
+                serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> e.getKey().isAssignableFrom(type)).map(Map.Entry::getValue).findFirst();
             }
         }
         return serializerOptional;
@@ -351,6 +351,19 @@ public class JLSCRegistry {
                 JLSCPreSerialize preSerialize = preSerializeOptional.get();
                 preSerialize.apply(value.getClass());
                 serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.canSerialize(value)).findFirst();
+            }
+        }
+        return serializerOptional;
+    }
+
+    public static Optional<JLSCSerializer> getSerializerFor(JLSCValue value) {
+        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.verifier().isValid(value)).findFirst();
+        if (!serializerOptional.isPresent() && value != null) {
+            Optional<JLSCPreSerialize> preSerializeOptional = JLSCRegistry.preSerializes.stream().filter(p -> p.affects(value.getClass())).findFirst();
+            if (preSerializeOptional.isPresent()) {
+                JLSCPreSerialize preSerialize = preSerializeOptional.get();
+                preSerialize.apply(value.getClass());
+                serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.verifier().isValid(value)).findFirst();
             }
         }
         return serializerOptional;

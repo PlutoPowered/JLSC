@@ -20,30 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import com.gmail.socraticphoenix.jlsc.JLSCArray;
-import com.gmail.socraticphoenix.jlsc.JLSCCompound;
 import com.gmail.socraticphoenix.jlsc.JLSCException;
-import com.gmail.socraticphoenix.jlsc.JLSCFormat;
-import com.gmail.socraticphoenix.jlsc.io.JLSCReadWriteUtil;
-import com.gmail.socraticphoenix.jlsc.io.JLSCStyle;
-import com.gmail.socraticphoenix.jlsc.io.JLSCSyntax;
-import com.gmail.socraticphoenix.jlsc.registry.JLSCRegistry;
-import com.gmail.socraticphoenix.jlsc.serialization.annotation.Name;
-import com.gmail.socraticphoenix.jlsc.serialization.annotation.Serializable;
-import com.gmail.socraticphoenix.jlsc.serialization.annotation.SerializationConstructor;
-import com.gmail.socraticphoenix.jlsc.serialization.annotation.Serialize;
-import com.gmail.socraticphoenix.jlsc.value.JLSCValue;
-import com.gmail.socraticphoenix.pio.ByteStream;
-
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
 
 public class QuickTest {
 
     public static void main(String[] args) throws IOException, JLSCException {
+
     }
 
 }

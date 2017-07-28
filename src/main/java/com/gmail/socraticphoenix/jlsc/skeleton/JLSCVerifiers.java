@@ -287,20 +287,6 @@ public class JLSCVerifiers {
         };
     }
 
-    public static JLSCVerifier nullOrDeserializable(Class type) {
-        return value -> {
-            if (value.isNull() || value.deserialize(type).isPresent()) {
-                return ParseResult.succesful("Value can be deserialized to type " + type.getName());
-            } else {
-                return ParseResult.unSuccesful("Value must be deserializable to type " + type.getName());
-            }
-        };
-    }
-
-    public static JLSCVerifier nullOrConvertible(Class type) {
-        return JLSCVerifiers.or(JLSCVerifiers.nullOrType(type), JLSCVerifiers.nullOrDeserializable(type));
-    }
-
     public static JLSCVerifier type(Class type) {
         return value -> {
             if (value.getAs(type).isPresent()) {
@@ -311,18 +297,25 @@ public class JLSCVerifiers {
         };
     }
 
-    public static JLSCVerifier deserializable(Class type) {
+    public static JLSCVerifier nullOrDirectType(Class type) {
         return value -> {
-            if (value.deserialize(type).isPresent()) {
-                return ParseResult.succesful("Value can be deserialized to type " + type.getName());
+            if (value.isNull() || value.superCast(type).isPresent()) {
+                return ParseResult.succesful("Value conforms to type " + type.getName());
             } else {
-                return ParseResult.unSuccesful("Value must be deserializable to type " + type.getName());
+                return ParseResult.unSuccesful("Value must conform to type " + type.getName());
             }
         };
     }
 
-    public static JLSCVerifier convertible(Class type) {
-        return JLSCVerifiers.or(JLSCVerifiers.type(type), JLSCVerifiers.deserializable(type));
+    public static JLSCVerifier directType(Class type) {
+        return value -> {
+            if (value.superCast(type).isPresent()) {
+                return ParseResult.succesful("Value conforms to type " + type.getName());
+            } else {
+                return ParseResult.unSuccesful("Value must conform to type " + type.getName());
+            }
+        };
     }
+
 
 }

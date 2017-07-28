@@ -106,7 +106,7 @@ public class JLSCReadWriteUtil {
             builder.append(style.delimiter(indent));
 
             List<JLSCValueProperty> properties = Items.looseClone(keyValue.getProperties());
-            JLSCValue value = keyValue.getValue();
+            JLSCValue value = keyValue.getValue().getForWriting();
             String result;
             if (value.getAsCompound().isPresent()) {
                 try {
@@ -121,7 +121,6 @@ public class JLSCReadWriteUtil {
                     throw new JLSCException("Error while writing value at key \"" + eKey + "\"", e);
                 }
             } else {
-                value = value.getFarthestBacking();
                 Optional<JLSCProcessor> processor = JLSCRegistry.getProcessorFor(value);
                 if (processor.isPresent()) {
                     try {
@@ -170,7 +169,7 @@ public class JLSCReadWriteUtil {
         while (iterator.hasNext()) {
             builder.append(style.preArrayVal(indent));
 
-            JLSCValue value = iterator.next();
+            JLSCValue value = iterator.next().getForWriting();
             List<JLSCValueProperty> properties = Items.looseClone(value.getProperties());
             String result;
             if (value.getAsCompound().isPresent()) {
@@ -186,7 +185,6 @@ public class JLSCReadWriteUtil {
                     throw new JLSCException("Error while writing value at index " + index, e);
                 }
             } else {
-                value = value.getFarthestBacking();
                 Optional<JLSCProcessor> processor = JLSCRegistry.getProcessorFor(value);
                 if (processor.isPresent()) {
                     try {
@@ -304,13 +302,12 @@ public class JLSCReadWriteUtil {
         JLSCCompoundHeader header = new JLSCCompoundHeader(compound);
         int len = header.length();
         for (JLSCKeyValue keyValue : compound.entries()) {
-            JLSCValue value = keyValue.getValue();
+            JLSCValue value = keyValue.getValue().getForWriting();
             if (value.getAsArray().isPresent()) {
                 len += JLSCReadWriteUtil.length(value.getAsArray().get());
             } else if (value.getAsCompound().isPresent()) {
                 len += JLSCReadWriteUtil.length(value.getAsCompound().get());
             } else {
-                value = value.getFarthestBacking();
                 Optional<JLSCByteProcessor> processorOptional = JLSCRegistry.getByteProcessorFor(value);
                 if (processorOptional.isPresent()) {
                     len += processorOptional.get().size(value);
@@ -324,12 +321,12 @@ public class JLSCReadWriteUtil {
         JLSCArrayHeader header = new JLSCArrayHeader(array);
         int len = header.length();
         for (JLSCValue value : array.leaves(false)) {
+            value = value.getForWriting();
             if (value.getAsArray().isPresent()) {
                 len += JLSCReadWriteUtil.length(value.getAsArray().get());
             } else if (value.getAsCompound().isPresent()) {
                 len += JLSCReadWriteUtil.length(value.getAsCompound().get());
             } else {
-                value = value.getFarthestBacking();
                 Optional<JLSCByteProcessor> processorOptional = JLSCRegistry.getByteProcessorFor(value);
                 if (processorOptional.isPresent()) {
                     len += processorOptional.get().size(value);
@@ -343,13 +340,12 @@ public class JLSCReadWriteUtil {
         JLSCCompoundHeader header = new JLSCCompoundHeader(compound);
         header.write(buffer);
         for (JLSCKeyValue keyValue : compound.entries()) {
-            JLSCValue value = keyValue.getValue();
+            JLSCValue value = keyValue.getValue().getForWriting();
             if (value.getAsArray().isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsArray().get(), buffer);
             } else if (value.getAsCompound().isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsCompound().get(), buffer);
             } else {
-                value = value.getFarthestBacking();
                 Optional<JLSCByteProcessor> processorOptional = JLSCRegistry.getByteProcessorFor(value);
                 if (processorOptional.isPresent()) {
                     JLSCByteProcessor processor = processorOptional.get();
@@ -365,13 +361,12 @@ public class JLSCReadWriteUtil {
         JLSCArrayHeader header = new JLSCArrayHeader(array);
         header.write(buffer);
         for (int i = 0; i < array.size(); i++) {
-            JLSCValue value = array.get(i).get();
+            JLSCValue value = array.get(i).get().getForWriting();
             if (value.getAsArray().isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsArray().get(), buffer);
             } else if (value.getAsCompound().isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsCompound().get(), buffer);
             } else {
-                value = value.getFarthestBacking();
                 Optional<JLSCByteProcessor> processorOptional = JLSCRegistry.getByteProcessorFor(value);
                 if (processorOptional.isPresent()) {
                     JLSCByteProcessor processor = processorOptional.get();

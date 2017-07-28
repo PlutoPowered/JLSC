@@ -92,7 +92,7 @@ public class JLSCAnnotationSerializerGenerator {
                     throw new IllegalStateException("Unreachable code", e);
                 }
             });
-            builder.require(name, JLSCVerifiers.nullOrConvertible(f.getType()));
+            builder.require(name, JLSCVerifiers.nullOrType(f.getType()));
         });
 
         Stream.of(type.getDeclaredMethods()).filter(m -> m.isAnnotationPresent(Serialize.class) && !Modifier.isStatic(m.getModifiers()) && m.getReturnType() != void.class && m.getReturnType() != Void.class && m.getParameters().length == 0).forEach(m -> {
@@ -124,7 +124,7 @@ public class JLSCAnnotationSerializerGenerator {
                     throw new IllegalStateException("Unreachable code", e);
                 }
             });
-            builder.require(name, JLSCVerifiers.nullOrConvertible(m.getReturnType()));
+            builder.require(name, JLSCVerifiers.nullOrType(m.getReturnType()));
         });
 
 
@@ -162,7 +162,7 @@ public class JLSCAnnotationSerializerGenerator {
                 String name = names[i];
                 Optional<JLSCValue> value = j.get(name);
                 if(value.isPresent()) {
-                    params[i] = value.get().convert(types[i], null);
+                    params[i] = value.get().getAs(types[i], null);
                 }
             }
 
@@ -179,7 +179,7 @@ public class JLSCAnnotationSerializerGenerator {
                         field.setAccessible(true);
                         Optional<JLSCValue> value = j.get(key);
                         if(value.isPresent()) {
-                            field.set(val, value.get().convert(field.getType(), null));
+                            field.set(val, value.get().getAs(field.getType(), null));
                         }
                         field.setAccessible(faccess);
                     } catch (IllegalAccessException e) {

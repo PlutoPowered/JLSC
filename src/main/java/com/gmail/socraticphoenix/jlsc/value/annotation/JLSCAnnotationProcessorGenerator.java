@@ -198,7 +198,7 @@ public class JLSCAnnotationProcessorGenerator {
             Object[] params = new Object[indices.length];
             for (int i = 0; i < indices.length; i++) {
                 int index = indices[i];
-                params[i] = a.get(index).orElse(JLSCValue.of(null)).convert(types[i], null);
+                params[i] = a.get(index).orElse(JLSCValue.of(null)).getAs(types[i], null);
             }
             boolean access = finalChosen.isAccessible();
             finalChosen.setAccessible(true);
@@ -212,7 +212,7 @@ public class JLSCAnnotationProcessorGenerator {
                     boolean faccess = field.isAccessible();
                     try {
                         field.setAccessible(true);
-                        field.set(val, a.get(key).orElse(JLSCValue.of(null)).convert(field.getType(), null));
+                        field.set(val, a.get(key).orElse(JLSCValue.of(null)).getAs(field.getType(), null));
                         field.setAccessible(faccess);
                     } catch (IllegalAccessException e) {
                         field.setAccessible(faccess);
