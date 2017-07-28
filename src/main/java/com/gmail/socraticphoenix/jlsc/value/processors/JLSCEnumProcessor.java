@@ -35,7 +35,7 @@ public class JLSCEnumProcessor extends JLSCNamedProcessor<Enum> {
 
     @Override
     protected void write(Enum value, JLSCArray trg) throws JLSCException {
-        trg.add(value.getClass().getName());
+        trg.add(value.getDeclaringClass().getName());
         trg.add(value.name());
     }
 

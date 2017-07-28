@@ -28,6 +28,7 @@ import com.gmail.socraticphoenix.jlsc.JLSCException;
 import com.gmail.socraticphoenix.jlsc.metadata.JLSCValueProperty;
 import com.gmail.socraticphoenix.jlsc.registry.JLSCRegistry;
 import com.gmail.socraticphoenix.jlsc.serialization.JLSCSerializer;
+import com.gmail.socraticphoenix.jlsc.value.annotation.JLSCAnnotationProcessorGenerator;
 import com.gmail.socraticphoenix.mirror.CastableValue;
 
 import java.util.ArrayList;
@@ -81,7 +82,6 @@ public class JLSCValue extends CastableValue {
         }
 
         return this.deserialize(type);
-
     }
 
     @Override
