@@ -22,9 +22,11 @@
 package com.gmail.socraticphoenix.jlsc.serialization;
 
 import com.gmail.socraticphoenix.jlsc.JLSCCompound;
+import com.gmail.socraticphoenix.jlsc.JLSCDataHolder;
 import com.gmail.socraticphoenix.jlsc.JLSCException;
 import com.gmail.socraticphoenix.jlsc.skeleton.JLSCSkeleton;
 import com.gmail.socraticphoenix.jlsc.skeleton.JLSCVerifier;
+import com.gmail.socraticphoenix.jlsc.skeleton.JLSCVerifiers;
 import com.gmail.socraticphoenix.jlsc.value.JLSCValue;
 
 public abstract class JLSCCompoundSerializer<T> implements JLSCSerializer<T> {
@@ -53,7 +55,7 @@ public abstract class JLSCCompoundSerializer<T> implements JLSCSerializer<T> {
 
     @Override
     public JLSCVerifier verifier() {
-        return this.skeleton;
+        return JLSCVerifiers.and(JLSCVerifiers.type(JLSCDataHolder.class), this.skeleton);
     }
 
     @Override

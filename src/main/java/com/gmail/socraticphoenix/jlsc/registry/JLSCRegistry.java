@@ -21,6 +21,7 @@
  */
 package com.gmail.socraticphoenix.jlsc.registry;
 
+import com.gmail.socraticphoenix.jlsc.header.JLSCKeyValueHeader;
 import com.gmail.socraticphoenix.jlsc.io.JLSCStyle;
 import com.gmail.socraticphoenix.jlsc.io.JLSCSyntax;
 import com.gmail.socraticphoenix.jlsc.serialization.JLSCSerializer;
@@ -45,32 +46,35 @@ import com.gmail.socraticphoenix.jlsc.value.processors.JLSCUUIDProcessor;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class JLSCRegistry {
     public static final JLSCProcessor DEFAULT_PROCESSOR = JLSCPrimitiveProcessors.STRING;
 
-    private static Map<Class, JLSCSerializer> serializers;
+    private static List<JLSCSerializer> serializers;
     private static Map<String, JLSCProcessor> processors;
     private static Map<String, JLSCByteProcessor> byteProcessors;
-    private static Set<JLSCPreProcess> preProcesses;
-    private static Set<JLSCPreSerialize> preSerializes;
-    private static Set<JLSCPreParse> preParses;
-    private static Set<JLSCPreID> preIDs;
+    private static List<JLSCPreProcess> preProcesses;
+    private static List<JLSCPreSerialize> preSerializes;
+    private static List<JLSCPreParse> preParses;
+    private static List<JLSCPreID> preIDs;
 
     static {
         JLSCRegistry.processors = Collections.synchronizedMap(new LinkedHashMap<>());
         JLSCRegistry.byteProcessors = Collections.synchronizedMap(new LinkedHashMap<>());
-        JLSCRegistry.serializers = Collections.synchronizedMap(new LinkedHashMap<>());
-        JLSCRegistry.preProcesses = new HashSet<>();
-        JLSCRegistry.preSerializes = new HashSet<>();
-        JLSCRegistry.preParses = new HashSet<>();
-        JLSCRegistry.preIDs = new HashSet<>();
+        JLSCRegistry.serializers = new ArrayList<>();
+        JLSCRegistry.preProcesses = new ArrayList<>();
+        JLSCRegistry.preSerializes = new ArrayList<>();
+        JLSCRegistry.preParses = new ArrayList<>();
+        JLSCRegistry.preIDs = new ArrayList<>();
 
         JLSCRegistry.initDefaults();
     }
@@ -146,7 +150,7 @@ public class JLSCRegistry {
     }
 
     public static boolean containsSerializer(Class clazz) {
-        return JLSCRegistry.serializers.entrySet().stream().anyMatch(e -> e.getKey().isAssignableFrom(clazz));
+        return JLSCRegistry.serializers.stream().anyMatch(s -> clazz.isAssignableFrom(s.result()));
     }
 
     public static boolean containsProcessor(String id) {
@@ -228,11 +232,8 @@ public class JLSCRegistry {
     }
 
     public static boolean register(JLSCSerializer serializer) {
-        if (!JLSCRegistry.serializers.containsKey(serializer.result())) {
-            JLSCRegistry.serializers.put(serializer.result(), serializer);
-            return true;
-        }
-        return false;
+        JLSCRegistry.serializers.add(serializer);
+        return true;
     }
 
     public static boolean register(JLSCDualProcessor dualProcessor) {
@@ -266,13 +267,13 @@ public class JLSCRegistry {
     }
 
     public static <T> Optional<JLSCSerializer<T>> getSerializerFor(Class<T> type, JLSCValue value) {
-        Optional<JLSCSerializer<T>> serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> type.isAssignableFrom(e.getKey()) && e.getValue().verifier().isValid(value)).map(Map.Entry::getValue).findFirst();
+        Optional<JLSCSerializer<T>> serializerOptional = (Optional) getSerializer(s -> type.isAssignableFrom(s.result()) && s.verifier().isValid(value));
         if (!serializerOptional.isPresent()) {
             Optional<JLSCPreSerialize> preSerializeOptional = JLSCRegistry.preSerializes.stream().filter(p -> p.affects(type)).findFirst();
             if (preSerializeOptional.isPresent()) {
                 JLSCPreSerialize preSerialize = preSerializeOptional.get();
                 preSerialize.apply(type);
-                serializerOptional = (Optional) JLSCRegistry.serializers.entrySet().stream().filter(e -> type.isAssignableFrom(e.getKey()) && e.getValue().verifier().isValid(value)).map(Map.Entry::getValue).findFirst();
+                serializerOptional = (Optional) getSerializer(s -> type.isAssignableFrom(s.result()) && s.verifier().isValid(value));
             }
         }
         return serializerOptional;
@@ -344,29 +345,40 @@ public class JLSCRegistry {
     }
 
     public static Optional<JLSCSerializer> getSerializerFor(Object value) {
-        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.canSerialize(value)).findFirst();
+        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.serializers.stream().filter(s -> s.canSerialize(value)).findFirst();
         if (!serializerOptional.isPresent() && value != null) {
             Optional<JLSCPreSerialize> preSerializeOptional = JLSCRegistry.preSerializes.stream().filter(p -> p.affects(value.getClass())).findFirst();
             if (preSerializeOptional.isPresent()) {
                 JLSCPreSerialize preSerialize = preSerializeOptional.get();
                 preSerialize.apply(value.getClass());
-                serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.canSerialize(value)).findFirst();
+                serializerOptional = JLSCRegistry.serializers.stream().filter(s -> s.canSerialize(value)).findFirst();
             }
         }
         return serializerOptional;
     }
 
     public static Optional<JLSCSerializer> getSerializerFor(JLSCValue value) {
-        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.verifier().isValid(value)).findFirst();
+        Optional<JLSCSerializer> serializerOptional = getSerializer(s -> s.verifier().isValid(value));
         if (!serializerOptional.isPresent() && value != null) {
             Optional<JLSCPreSerialize> preSerializeOptional = JLSCRegistry.preSerializes.stream().filter(p -> p.affects(value.getClass())).findFirst();
             if (preSerializeOptional.isPresent()) {
                 JLSCPreSerialize preSerialize = preSerializeOptional.get();
                 preSerialize.apply(value.getClass());
-                serializerOptional = JLSCRegistry.serializers.values().stream().filter(s -> s.verifier().isValid(value)).findFirst();
+                serializerOptional = getSerializer(s -> s.verifier().isValid(value));
             }
         }
         return serializerOptional;
+    }
+
+    private static Optional<JLSCSerializer> getSerializer(Predicate<JLSCSerializer> predicate) {
+        for (int i = 0; i < serializers.size(); i++) {
+            JLSCSerializer serializer = serializers.get(i);
+            if(predicate.test(serializer)) {
+                return Optional.ofNullable(serializer);
+            }
+        }
+
+        return Optional.empty();
     }
 
     public static long applicableCount(String read, JLSCSyntax syntax, JLSCStyle style) {

@@ -341,9 +341,9 @@ public class JLSCReadWriteUtil {
         header.write(buffer);
         for (JLSCKeyValue keyValue : compound.entries()) {
             JLSCValue value = keyValue.getValue().getForWriting();
-            if (value.getAsArray().isPresent()) {
+            if (value.directCast(JLSCArray.class).isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsArray().get(), buffer);
-            } else if (value.getAsCompound().isPresent()) {
+            } else if (value.directCast(JLSCCompound.class).isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsCompound().get(), buffer);
             } else {
                 Optional<JLSCByteProcessor> processorOptional = JLSCRegistry.getByteProcessorFor(value);
@@ -362,9 +362,9 @@ public class JLSCReadWriteUtil {
         header.write(buffer);
         for (int i = 0; i < array.size(); i++) {
             JLSCValue value = array.get(i).get().getForWriting();
-            if (value.getAsArray().isPresent()) {
+            if (value.directCast(JLSCArray.class).isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsArray().get(), buffer);
-            } else if (value.getAsCompound().isPresent()) {
+            } else if (value.directCast(JLSCCompound.class).isPresent()) {
                 JLSCReadWriteUtil.write(value.getAsCompound().get(), buffer);
             } else {
                 Optional<JLSCByteProcessor> processorOptional = JLSCRegistry.getByteProcessorFor(value);

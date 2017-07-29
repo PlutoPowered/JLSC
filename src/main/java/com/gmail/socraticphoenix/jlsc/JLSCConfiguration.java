@@ -36,10 +36,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -146,10 +148,10 @@ public class JLSCConfiguration implements JLSCDataHolder, Iterable<JLSCKeyValue>
                 this.compound = JLSCCompound.read(Bytes.readAllText(this.file), false);
                 break;
             case BYTES:
-                this.compound = JLSCReadWriteUtil.readCompound(ByteStream.of(new FileInputStream(this.file)), HashMap::new, ArrayList::new);
+                this.compound = JLSCReadWriteUtil.readCompound(ByteStream.of(Files.readAllBytes(this.file.toPath())), LinkedHashMap::new, ArrayList::new);
                 break;
             case COMPRESSED_BYTES:
-                this.compound = JLSCReadWriteUtil.readCompound(ByteStream.decompressing(ByteStream.of(new FileInputStream(this.file))), HashMap::new, ArrayList::new);
+                this.compound = JLSCReadWriteUtil.readCompound(ByteStream.of(Bytes.decompress(Files.readAllBytes(this.file.toPath()))), LinkedHashMap::new, ArrayList::new);
                 break;
         }
         if (this.concurrent) {

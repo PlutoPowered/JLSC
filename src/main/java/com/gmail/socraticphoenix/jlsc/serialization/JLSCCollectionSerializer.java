@@ -39,19 +39,21 @@ public class JLSCCollectionSerializer implements JLSCSerializer<Collection> {
     private String listId;
 
     private JLSCVerifier verifier;
+    private Class element;
 
-    public JLSCCollectionSerializer(Class<? extends Collection> type, boolean strict, Supplier<Collection> listSupplier, String listId) {
+    public JLSCCollectionSerializer(Class<? extends Collection> type, Class element, boolean strict, Supplier<Collection> listSupplier, String listId) {
         this.listSupplier = listSupplier;
         this.type = type;
         this.strict = strict;
         this.listId = listId;
+        this.element = element;
 
         this.verifier = JLSCVerifiers.and(
                 JLSCVerifiers.type(JLSCCompound.class),
                 JLSCVerifiers.skeleton()
                         .require("listId", JLSCVerifiers.is(listId))
-                        .require("list", JLSCVerifiers.type(JLSCArray.class))
-                .build()
+                        .require("list", JLSCVerifiers.array(JLSCVerifiers.type(element)))
+                        .build()
         );
     }
 
@@ -87,7 +89,7 @@ public class JLSCCollectionSerializer implements JLSCSerializer<Collection> {
     public JLSCValue deSerialize(JLSCValue value) throws JLSCException {
         JLSCArray array = value.getAsCompound().get().getArray("list").get();
         Collection collection = this.listSupplier.get();
-        array.forEach(v -> collection.add(v.getObjectified().rawValue()));
+        array.forEach(v -> collection.add(v.getAs(this.element).get()));
         return JLSCValue.of(collection);
     }
 

@@ -67,9 +67,9 @@ public class JLSCValue extends CastableValue {
         this.properties.clear();
         this.properties.addAll(other.properties);
 
-        if (this.getAsCompound().isPresent() && other.getAsCompound().isPresent()) {
+        if (this.directCast(JLSCCompound.class).isPresent() && other.directCast(JLSCCompound.class).isPresent()) {
             this.getAsCompound().get().absorbMetadata(other.getAsCompound().get());
-        } else if (this.getAsArray().isPresent() && other.getAsArray().isPresent()) {
+        } else if (this.directCast(JLSCArray.class).isPresent() && other.directCast(JLSCArray.class).isPresent()) {
             this.getAsArray().get().absorbMetadata(other.getAsArray().get());
         }
     }
@@ -117,23 +117,6 @@ public class JLSCValue extends CastableValue {
         }
     }
 
-    public JLSCValue getObjectified() {
-        Optional<JLSCSerializer> serializerOptional = JLSCRegistry.getSerializerFor(this);
-        if (serializerOptional.isPresent()) {
-            JLSCSerializer serializer = serializerOptional.get();
-            JLSCValue result = null;
-            try {
-                result = serializer.deSerialize(this);
-            } catch (JLSCException e) {
-                return this;
-            }
-            result.absorbMetadata(this);
-            return result;
-        }
-
-        return this;
-    }
-
     public <T> Optional<T> deserialize(Class<T> type) {
         Optional<JLSCSerializer<T>> serializerOptional = JLSCRegistry.getSerializerFor(type, this);
         if (serializerOptional.isPresent()) {
@@ -142,8 +125,8 @@ public class JLSCValue extends CastableValue {
                 JLSCValue result = serializer.deSerialize(this);
                 result.absorbMetadata(this);
                 return result.getAs(type);
-            } catch (JLSCException e) {
-                return Optional.empty();
+            } catch (JLSCException ignore) {
+                throw new RuntimeException(ignore);
             }
         }
 

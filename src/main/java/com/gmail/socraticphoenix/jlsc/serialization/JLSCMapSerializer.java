@@ -37,14 +37,18 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
     private Class<? extends Map> type;
     private boolean strict;
     private String mapId;
+    private Class key;
+    private Class value;
 
     private JLSCVerifier verifier;
 
-    public JLSCMapSerializer(Class<? extends Map> type, boolean strict, Supplier<Map> mapSupplier, String mapId) {
+    public JLSCMapSerializer(Class<? extends Map> type, Class key, Class value, boolean strict, Supplier<Map> mapSupplier, String mapId) {
         this.mapSupplier = mapSupplier;
         this.type = type;
         this.strict = strict;
         this.mapId = mapId;
+        this.key = key;
+        this.value = value;
 
         this.verifier = JLSCVerifiers.and(
                 JLSCVerifiers.type(JLSCCompound.class),
@@ -52,19 +56,17 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
                         JLSCSkeleton.builder()
                                 .require("mapId", JLSCVerifiers.is(mapId))
                                 .require("useStringKeys", JLSCVerifiers.is(true))
-                                .require("map", JLSCVerifiers.type(JLSCCompound.class))
+                                .require("map", JLSCVerifiers.compound(JLSCVerifiers.type(value)))
                                 .build(),
                         JLSCSkeleton.builder()
                                 .require("mapId", JLSCVerifiers.is(mapId))
                                 .require("useStringKeys", JLSCVerifiers.is(false))
-                                .require("map", JLSCVerifiers.and(
-                                        JLSCVerifiers.type(JLSCArray.class),
-                                        JLSCVerifiers.array(JLSCVerifiers.and(JLSCVerifiers.type(JLSCCompound.class),
-                                                JLSCSkeleton.builder()
-                                                        .require("key")
-                                                        .require("value")
-                                                        .build()))
-                                ))
+                                .require("map", JLSCVerifiers.array(JLSCVerifiers.and(JLSCVerifiers.type(JLSCCompound.class),
+                                        JLSCSkeleton.builder()
+                                                .require("key", JLSCVerifiers.type(key))
+                                                .require("value", JLSCVerifiers.type(value))
+                                                .build()))
+                                )
                                 .build()
                 )
         );
@@ -121,7 +123,7 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
             JLSCArray entries = upper.getArray("map").get();
             entries.forEach(val -> {
                 JLSCCompound entry = val.getAsCompound().get();
-                res.put(entry.get("key").get().getObjectified().rawValue(), entry.get("value").get().getObjectified().rawValue());
+                res.put(entry.get("key").get().getAs(this.key).get(), entry.get("value").get().getAs(this.value).get());
             });
         }
 

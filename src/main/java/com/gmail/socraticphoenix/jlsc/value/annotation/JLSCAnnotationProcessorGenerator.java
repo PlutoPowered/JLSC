@@ -32,6 +32,7 @@ import com.gmail.socraticphoenix.jlsc.metadata.Property;
 import com.gmail.socraticphoenix.jlsc.serialization.annotation.JLSCAnnotationSerializerGenerator;
 import com.gmail.socraticphoenix.jlsc.value.JLSCDualProcessor;
 import com.gmail.socraticphoenix.jlsc.value.JLSCValue;
+import com.gmail.socraticphoenix.pio.Bytes;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
