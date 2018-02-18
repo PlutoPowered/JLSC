@@ -108,7 +108,7 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
             });
             upper.put("map", array);
         }
-        return JLSCValue.of(useStringKeys);
+        return JLSCValue.of(upper);
     }
 
     @Override
