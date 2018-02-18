@@ -86,7 +86,7 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
     public boolean canSerialize(Object object) {
         if(object != null && (this.strict ? this.type.equals(object.getClass()) : this.type.isInstance(object))) {
             Map map = (Map) object;
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
+            for (Map.Entry entry : map.entrySet()) {
                 if (!this.key.isInstance(entry.getKey()) || !this.value.isInstance(entry.getValue())) {
                     return false;
                 }
