@@ -91,6 +91,7 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
                     return false;
                 }
             }
+            return true;
         } else {
             return false;
         }
