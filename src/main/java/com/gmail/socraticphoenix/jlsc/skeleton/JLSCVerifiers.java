@@ -41,6 +41,7 @@ public class JLSCVerifiers {
                 ParseResult result = verifier.verify(value);
                 if (!result.isSuccesful()) {
                     builder.message("Failed condition in AND").succesful(false).node(result);
+                    break;
                 } else {
                     builder.node(result);
                 }
@@ -62,6 +63,7 @@ public class JLSCVerifiers {
                 ParseResult result = verifier.verify(value);
                 if (result.isSuccesful()) {
                     builder.message("Met at least one condition in OR").node(result).succesful(true);
+                    break;
                 } else {
                     builder.node(result);
                 }
