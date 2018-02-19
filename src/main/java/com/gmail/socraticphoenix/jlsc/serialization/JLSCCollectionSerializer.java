@@ -69,7 +69,16 @@ public class JLSCCollectionSerializer implements JLSCSerializer<Collection> {
 
     @Override
     public boolean canSerialize(Object object) {
-        return object != null && (this.strict ? this.type.equals(object.getClass()) : this.type.isInstance(object));
+        if(object != null && (this.strict ? this.type.equals(object.getClass()) : this.type.isInstance(object))) {
+            for (Object a : (Collection) object) {
+                if (!this.element.isInstance(a)) {
+                    return false;   
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
