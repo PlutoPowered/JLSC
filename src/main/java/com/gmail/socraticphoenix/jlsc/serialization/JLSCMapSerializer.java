@@ -52,15 +52,8 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
 
         this.verifier = JLSCVerifiers.and(
                 JLSCVerifiers.type(JLSCCompound.class),
-                JLSCVerifiers.or(
                         JLSCSkeleton.builder()
                                 .require("mapId", JLSCVerifiers.is(mapId))
-                                .require("useStringKeys", JLSCVerifiers.is(true))
-                                .require("map", JLSCVerifiers.compound(JLSCVerifiers.type(value)))
-                                .build(),
-                        JLSCSkeleton.builder()
-                                .require("mapId", JLSCVerifiers.is(mapId))
-                                .require("useStringKeys", JLSCVerifiers.is(false))
                                 .require("map", JLSCVerifiers.array(JLSCVerifiers.and(JLSCVerifiers.type(JLSCCompound.class),
                                         JLSCSkeleton.builder()
                                                 .require("key", JLSCVerifiers.type(key))
@@ -68,7 +61,6 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
                                                 .build()))
                                 )
                                 .build()
-                )
         );
     }
 
@@ -100,15 +92,8 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
     @Override
     public JLSCValue serialize(JLSCValue value) throws JLSCException {
         Map map = value.getAs(Map.class).get();
-        boolean useStringKeys = map.keySet().stream().allMatch(String.class::isInstance);
         JLSCCompound upper = new JLSCCompound();
         upper.put("mapId", this.mapId);
-        upper.put("useStringKeys", useStringKeys);
-        if (useStringKeys) {
-            JLSCCompound compound = new JLSCCompound();
-            map.forEach((k, v) -> compound.put(String.valueOf(k), v));
-            upper.put("map", compound);
-        } else {
             JLSCArray array = new JLSCArray();
             map.forEach((k, v) -> {
                 JLSCCompound entry = new JLSCCompound();
@@ -117,7 +102,6 @@ public class JLSCMapSerializer implements JLSCSerializer<Map> {
                 array.add(entry);
             });
             upper.put("map", array);
-        }
         return JLSCValue.of(upper);
     }
 
