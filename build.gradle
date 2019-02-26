@@ -37,13 +37,11 @@ repositories {
 }
 
 dependencies {
-    library "com.github.PlutoPowered:PIO:master-SNAPSHOT"
-    library "com.github.PlutoPowered:Parse:master-SNAPSHOT"
-    library "com.github.PlutoPowered:Collect:master-SNAPSHOT"
-    library "com.github.PlutoPowered:InverseY:master-SNAPSHOT"
-    library "com.github.PlutoPowered:Mirror:master-SNAPSHOT"
-
-    library fileTree(dir: 'libs', include: "*.jar")
+    library "com.github.SocraticPhoenix:PIO:master-SNAPSHOT"
+    library "com.github.SocraticPhoenix:Parse:master-SNAPSHOT"
+    library "com.github.SocraticPhoenix:Collect:master-SNAPSHOT"
+    library "com.github.SocraticPhoenix:InverseY:master-SNAPSHOT"
+    library "com.github.SocraticPhoenix:Mirror:master-SNAPSHOT"
 }
 //End Repositories and Dependencies
 
